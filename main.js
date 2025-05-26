@@ -2,7 +2,7 @@
 initStars();
 
 // Mobile controls state
-let mobileControls = {
+window.mobileControlsState = {
     up: false,
     down: false,
     left: false,
@@ -26,7 +26,7 @@ function handleTouchStart(event, control) {
     
     if (gameState !== 'playing') return;
 
-    mobileControls.lastTouch = {
+    mobileControlsState.lastTouch = {
         x: event.touches[0].clientX,
         y: event.touches[0].clientY,
         control: control
@@ -35,7 +35,7 @@ function handleTouchStart(event, control) {
     if (control === 'shoot') {
         keys.Space = true;
         keys.shooting = true;
-        mobileControls.shooting = true;
+        mobileControlsState.shooting = true;
     } else if (control === 'Q') {
         keys.KeyQ = true;
         activateRapidFire();
@@ -53,22 +53,22 @@ function handleTouchStart(event, control) {
             case 'Up':
                 keys.KeyW = true;
                 keys.ArrowUp = true;
-                mobileControls.up = true;
+                mobileControlsState.up = true;
                 break;
             case 'Down':
                 keys.KeyS = true;
                 keys.ArrowDown = true;
-                mobileControls.down = true;
+                mobileControlsState.down = true;
                 break;
             case 'Left':
                 keys.KeyA = true;
                 keys.ArrowLeft = true;
-                mobileControls.left = true;
+                mobileControlsState.left = true;
                 break;
             case 'Right':
                 keys.KeyD = true;
                 keys.ArrowRight = true;
-                mobileControls.right = true;
+                mobileControlsState.right = true;
                 break;
         }
     }
@@ -78,34 +78,34 @@ function handleTouchEnd(event, control) {
     event.preventDefault();
     event.stopPropagation();
 
-    mobileControls.lastTouch = null;
+    mobileControlsState.lastTouch = null;
 
     if (control === 'shoot') {
         keys.Space = false;
         keys.shooting = false;
-        mobileControls.shooting = false;
+        mobileControlsState.shooting = false;
     } else {
         // Handle directional controls
         switch(control) {
             case 'Up':
                 keys.KeyW = false;
                 keys.ArrowUp = false;
-                mobileControls.up = false;
+                mobileControlsState.up = false;
                 break;
             case 'Down':
                 keys.KeyS = false;
                 keys.ArrowDown = false;
-                mobileControls.down = false;
+                mobileControlsState.down = false;
                 break;
             case 'Left':
                 keys.KeyA = false;
                 keys.ArrowLeft = false;
-                mobileControls.left = false;
+                mobileControlsState.left = false;
                 break;
             case 'Right':
                 keys.KeyD = false;
                 keys.ArrowRight = false;
-                mobileControls.right = false;
+                mobileControlsState.right = false;
                 break;
             default:
                 keys[`Key${control}`] = false;
@@ -127,7 +127,7 @@ function setupMobileControls() {
             // Add touch move handling for better responsiveness
             button.addEventListener('touchmove', (e) => {
                 e.preventDefault();
-                if (mobileControls.lastTouch && mobileControls.lastTouch.control === direction) {
+                if (mobileControlsState.lastTouch && mobileControlsState.lastTouch.control === direction) {
                     const touch = e.touches[0];
                     const buttonRect = button.getBoundingClientRect();
                     

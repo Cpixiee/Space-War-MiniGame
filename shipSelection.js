@@ -80,98 +80,63 @@ const SHIPS = [
 let currentShipIndex = 0;
 let selectedShip = SHIPS[0];
 let animationFrame;
-let previewStars = [];
-let shipHoverEffect = 0;
-let selectionParticles = [];
+let isMobile = window.innerWidth <= 768;
 
 // Initialize
 function init() {
+    // Check if we're coming back from game
+    const savedShipData = localStorage.getItem('selectedShip');
+    if (savedShipData) {
+        try {
+            const savedShip = JSON.parse(savedShipData);
+            const shipIndex = SHIPS.findIndex(ship => ship.id === savedShip.id);
+            if (shipIndex !== -1) {
+                currentShipIndex = shipIndex;
+                selectedShip = SHIPS[shipIndex];
+            }
+        } catch (e) {
+            console.error('Error loading saved ship:', e);
+        }
+    }
+
     createThumbnails();
     updateShipDisplay();
     setupEventListeners();
-    initPreviewStars();
-    animatePreview();
+    animateStars();
+    
+    // Handle resize events
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
 }
 
-// Initialize preview stars
-function initPreviewStars() {
-    previewStars = [];
+function handleResize() {
+    isMobile = window.innerWidth <= 768;
+    
+    // Update canvas sizes
     const canvas = document.getElementById('shipPreview');
-    for(let i = 0; i < 50; i++) {
-        previewStars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            size: Math.random() * 2,
-            speed: Math.random() * 2 + 0.5
-        });
-    }
-}
-
-// Update preview stars
-function updatePreviewStars() {
-    const canvas = document.getElementById('shipPreview');
-    for(let star of previewStars) {
-        star.y += star.speed;
-        if(star.y > canvas.height) {
-            star.y = 0;
-            star.x = Math.random() * canvas.width;
+    if (canvas) {
+        if (isMobile) {
+            canvas.width = Math.min(300, window.innerWidth - 40);
+            canvas.height = Math.min(200, window.innerHeight - 200);
+        } else {
+            canvas.width = 400;
+            canvas.height = 300;
         }
+        updateShipPreview();
     }
-}
 
-// Draw preview stars
-function drawPreviewStars(ctx) {
-    ctx.save();
-    ctx.fillStyle = '#ffffff';
-    for(let star of previewStars) {
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        ctx.fill();
-    }
-    ctx.restore();
-}
-
-// Create selection particles
-function createSelectionParticles(x, y, color) {
-    for(let i = 0; i < 20; i++) {
-        const angle = (Math.PI * 2 / 20) * i;
-        selectionParticles.push({
-            x: x,
-            y: y,
-            vx: Math.cos(angle) * 2,
-            vy: Math.sin(angle) * 2,
-            size: 2 + Math.random() * 2,
-            color: color,
-            life: 60,
-            maxLife: 60
-        });
-    }
-}
-
-// Update selection particles
-function updateSelectionParticles() {
-    for(let i = selectionParticles.length - 1; i >= 0; i--) {
-        const particle = selectionParticles[i];
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-        particle.life--;
-        if(particle.life <= 0) {
-            selectionParticles.splice(i, 1);
+    // Update thumbnails
+    const thumbnails = document.querySelectorAll('.ship-thumbnail');
+    thumbnails.forEach(thumbnail => {
+        if (isMobile) {
+            thumbnail.width = 60;
+            thumbnail.height = 45;
+        } else {
+            thumbnail.width = 80;
+            thumbnail.height = 60;
         }
-    }
-}
-
-// Draw selection particles
-function drawSelectionParticles(ctx) {
-    for(let particle of selectionParticles) {
-        ctx.save();
-        ctx.globalAlpha = particle.life / particle.maxLife;
-        ctx.fillStyle = particle.color;
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-    }
+        drawShipThumbnail(thumbnail, SHIPS[currentShipIndex].design);
+    });
 }
 
 // Create ship thumbnails
@@ -183,17 +148,6 @@ function createThumbnails() {
         thumbnail.width = 80;
         thumbnail.height = 60;
         thumbnail.addEventListener('click', () => selectShip(index));
-        thumbnail.addEventListener('mouseover', () => {
-            thumbnail.style.transform = 'scale(1.1)';
-            createSelectionParticles(
-                thumbnail.offsetLeft + thumbnail.width/2,
-                thumbnail.offsetTop + thumbnail.height/2,
-                ship.design.engineColor
-            );
-        });
-        thumbnail.addEventListener('mouseout', () => {
-            thumbnail.style.transform = '';
-        });
         container.appendChild(thumbnail);
         drawShipThumbnail(thumbnail, ship.design);
     });
@@ -359,39 +313,39 @@ function drawShipBase(ctx, design, scale = 1) {
         // Aurora Fighter (default)
         ctx.fillStyle = design.mainColor;
         
-        // Main hull
-        ctx.beginPath();
-        ctx.moveTo(0, -30 * scale);
+    // Main hull
+    ctx.beginPath();
+    ctx.moveTo(0, -30 * scale);
         ctx.lineTo(-20 * scale, 20 * scale);
         ctx.lineTo(20 * scale, 20 * scale);
-        ctx.closePath();
-        ctx.fill();
-        
-        // Wings
+    ctx.closePath();
+    ctx.fill();
+
+    // Wings
         ctx.fillStyle = design.accentColor;
-        ctx.beginPath();
+    ctx.beginPath();
         ctx.moveTo(-15 * scale, 0);
         ctx.lineTo(-30 * scale, 15 * scale);
         ctx.lineTo(-10 * scale, 15 * scale);
-        ctx.closePath();
-        ctx.fill();
-        
-        ctx.beginPath();
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
         ctx.moveTo(15 * scale, 0);
         ctx.lineTo(30 * scale, 15 * scale);
         ctx.lineTo(10 * scale, 15 * scale);
-        ctx.closePath();
-        ctx.fill();
-        
-        // Cockpit
+    ctx.closePath();
+    ctx.fill();
+
+    // Cockpit
         ctx.fillStyle = design.engineColor;
-        ctx.beginPath();
-        ctx.moveTo(0, -25 * scale);
-        ctx.lineTo(-8 * scale, -10 * scale);
-        ctx.lineTo(8 * scale, -10 * scale);
-        ctx.closePath();
-        ctx.fill();
-        
+    ctx.beginPath();
+    ctx.moveTo(0, -25 * scale);
+    ctx.lineTo(-8 * scale, -10 * scale);
+    ctx.lineTo(8 * scale, -10 * scale);
+    ctx.closePath();
+    ctx.fill();
+
         // Pulse effect
         drawPulseEffect(ctx, scale, design);
     }
@@ -401,9 +355,9 @@ function drawShipBase(ctx, design, scale = 1) {
     ctx.shadowBlur = 15;
     ctx.fillStyle = design.engineColor;
     ctx.fillRect(-8 * scale, 20 * scale, 16 * scale, 5 * scale);
-    
+
     ctx.restore();
-}
+    }
 
 function drawPulseEffect(ctx, scale, design) {
     const pulse = Math.sin(Date.now() / 500) * 0.5 + 0.5;
@@ -481,54 +435,72 @@ function drawShieldEffect(ctx, scale, design) {
     ctx.globalAlpha = 1;
 }
 
-// Update ship preview
+// Update display
+function updateShipDisplay() {
+    const ship = SHIPS[currentShipIndex];
+    
+    // Update stats
+    document.getElementById('shipName').textContent = ship.name;
+    document.getElementById('shipDescription').textContent = ship.description;
+    
+    // Update stat bars and values
+    updateStat('speed', ship.speed);
+    updateStat('damage', ship.damage);
+    updateStat('shield', ship.shield);
+    
+    // Update preview
+    updateShipPreview();
+    updateThumbnailSelection();
+}
+
+function updateStat(stat, value) {
+    const bar = document.getElementById(`${stat}Bar`);
+    const valueEl = document.getElementById(`${stat}Value`);
+    bar.style.width = `${value * 20}%`;
+    valueEl.textContent = value;
+}
+
 function updateShipPreview() {
     const canvas = document.getElementById('shipPreview');
     const ctx = canvas.getContext('2d');
     
-    canvas.width = 400;
-    canvas.height = 300;
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw stars
-    drawPreviewStars(ctx);
-    
-    // Draw ship with hover effect
-    ctx.save();
-    ctx.translate(canvas.width/2, canvas.height/2 + Math.sin(shipHoverEffect) * 10);
-    
-    // Draw special effect
-    if(typeof drawSpecialEffect === 'function') {
-        drawSpecialEffect(ctx, selectedShip, 2);
+    // Clear previous animation frame if exists
+    if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
     }
     
-    drawShipBase(ctx, selectedShip.design, 2);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.save();
+    ctx.translate(canvas.width/2, canvas.height/2);
+    const scale = isMobile ? 1.5 : 2;
+    drawShipBase(ctx, SHIPS[currentShipIndex].design, scale);
     ctx.restore();
     
-    // Draw selection particles
-    drawSelectionParticles(ctx);
+    // Start animation loop
+        animate();
+}
+
+function updateThumbnailSelection() {
+    const thumbnails = document.querySelectorAll('.ship-thumbnail');
+    thumbnails.forEach((thumb, index) => {
+        thumb.classList.toggle('active', index === currentShipIndex);
+    });
 }
 
 // Animation loop
-function animatePreview() {
-    shipHoverEffect += 0.05;
-    updatePreviewStars();
-    updateSelectionParticles();
-    updateShipPreview();
+function animate() {
+    const canvas = document.getElementById('shipPreview');
+    const ctx = canvas.getContext('2d');
     
-    // Update stat bars with animation
-    const stats = ['speed', 'damage', 'shield'];
-    stats.forEach(stat => {
-        const bar = document.getElementById(`${stat}Bar`);
-        const targetWidth = selectedShip[stat] * 20;
-        const currentWidth = parseFloat(bar.style.width) || 0;
-        const newWidth = currentWidth + (targetWidth - currentWidth) * 0.1;
-        bar.style.width = `${newWidth}%`;
-    });
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    animationFrame = requestAnimationFrame(animatePreview);
+    ctx.save();
+    ctx.translate(canvas.width/2, canvas.height/2);
+    drawShipBase(ctx, SHIPS[currentShipIndex].design, 2);
+    ctx.restore();
+    
+    animationFrame = requestAnimationFrame(animate);
 }
 
 // Event listeners
@@ -536,88 +508,107 @@ function setupEventListeners() {
     document.getElementById('prevShip').addEventListener('click', () => {
         currentShipIndex = (currentShipIndex - 1 + SHIPS.length) % SHIPS.length;
         selectedShip = SHIPS[currentShipIndex];
-        createSelectionParticles(200, 150, selectedShip.design.engineColor);
         updateShipDisplay();
     });
 
     document.getElementById('nextShip').addEventListener('click', () => {
         currentShipIndex = (currentShipIndex + 1) % SHIPS.length;
         selectedShip = SHIPS[currentShipIndex];
-        createSelectionParticles(200, 150, selectedShip.design.engineColor);
         updateShipDisplay();
     });
 
     document.getElementById('selectButton').addEventListener('click', () => {
-        // Save complete ship data
-        const shipToSave = {
-            ...selectedShip,
-            design: {
-                mainColor: selectedShip.design.mainColor,
-                accentColor: selectedShip.design.accentColor,
-                engineColor: selectedShip.design.engineColor,
-                type: selectedShip.design.type,
-                special: selectedShip.design.special
-            }
-        };
-        localStorage.setItem('selectedShip', JSON.stringify(shipToSave));
-        
-        // Create selection effect before transitioning
-        createSelectionParticles(200, 150, selectedShip.design.engineColor);
-        setTimeout(() => {
-            window.location.href = 'monster.html';
-        }, 500);
+        localStorage.setItem('selectedShip', JSON.stringify(selectedShip));
+        window.location.href = 'index.html';
     });
 
     document.getElementById('backButton').addEventListener('click', () => {
-        window.location.href = 'monster.html';
+        window.location.href = 'index.html';
     });
+
+    // Add touch events for mobile
+    if ('ontouchstart' in window) {
+        setupTouchEvents();
+    }
 }
 
-// Update display
-function updateShipDisplay() {
-    const ship = SHIPS[currentShipIndex];
-    
-    // Update ship name with fade effect
-    const shipName = document.getElementById('shipName');
-    shipName.style.opacity = '0';
-    setTimeout(() => {
-        shipName.textContent = ship.name;
-        shipName.style.opacity = '1';
-    }, 200);
-    
-    // Update description with fade effect
-    const shipDesc = document.getElementById('shipDescription');
-    shipDesc.style.opacity = '0';
-    setTimeout(() => {
-        shipDesc.textContent = ship.description;
-        shipDesc.style.opacity = '1';
-    }, 200);
-    
-    updateThumbnailSelection();
-}
+// Touch event handlers
+function setupTouchEvents() {
+    const shipDisplay = document.querySelector('.ship-display');
+    let startX = 0;
+    let isDragging = false;
 
-// Update thumbnail selection
-function updateThumbnailSelection() {
-    const thumbnails = document.querySelectorAll('.ship-thumbnail');
-    thumbnails.forEach((thumb, index) => {
-        thumb.classList.toggle('active', index === currentShipIndex);
-        if(index === currentShipIndex) {
-            createSelectionParticles(
-                thumb.offsetLeft + thumb.width/2,
-                thumb.offsetTop + thumb.height/2,
-                SHIPS[index].design.engineColor
-            );
+    shipDisplay.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        isDragging = true;
+    });
+
+    shipDisplay.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        
+        const currentX = e.touches[0].clientX;
+        const diff = startX - currentX;
+        
+        if (Math.abs(diff) > 50) { // Threshold for swipe
+            if (diff > 0) {
+                // Swipe left
+                currentShipIndex = (currentShipIndex + 1) % SHIPS.length;
+            } else {
+                // Swipe right
+                currentShipIndex = (currentShipIndex - 1 + SHIPS.length) % SHIPS.length;
+            }
+            selectedShip = SHIPS[currentShipIndex];
+            updateShipDisplay();
+            startX = currentX;
         }
     });
+
+    shipDisplay.addEventListener('touchend', () => {
+        isDragging = false;
+    });
+}
+
+// Star animation
+function animateStars() {
+    const stars1 = document.getElementById('stars1');
+    const stars2 = document.getElementById('stars2');
+    const stars3 = document.getElementById('stars3');
+
+    if (stars1 && stars2 && stars3) {
+        // Small stars
+        let starsShadow1 = '';
+        for (let i = 0; i < 700; i++) {
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            starsShadow1 += `${x}vw ${y}vh 1px #fff${i < 699 ? ',' : ''}`;
+        }
+        stars1.style.boxShadow = starsShadow1;
+
+        // Medium stars
+        let starsShadow2 = '';
+        for (let i = 0; i < 200; i++) {
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            starsShadow2 += `${x}vw ${y}vh 2px #fff${i < 199 ? ',' : ''}`;
+        }
+        stars2.style.boxShadow = starsShadow2;
+
+        // Large stars
+        let starsShadow3 = '';
+        for (let i = 0; i < 100; i++) {
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            starsShadow3 += `${x}vw ${y}vh 3px #fff${i < 99 ? ',' : ''}`;
+        }
+        stars3.style.boxShadow = starsShadow3;
+    }
 }
 
 // Select ship by index
 function selectShip(index) {
     currentShipIndex = index;
     selectedShip = SHIPS[currentShipIndex];
-    console.log('Selected ship:', selectedShip); // Debug log
     updateShipDisplay();
-    updateThumbnailSelection();
 }
 
 // Initialize when document is loaded

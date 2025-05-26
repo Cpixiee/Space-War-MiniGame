@@ -120,6 +120,9 @@ function drawSpecialEffect(ctx, ship, scale = 1) {
         case 'shield':
             drawShieldEffect(ctx, ship, scale);
             break;
+        case 'stealth':
+            drawStealthEffect(ctx, ship, scale);
+            break;
     }
 }
 
@@ -157,7 +160,26 @@ function drawPulseEffect(ctx, ship, scale) {
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
         ctx.stroke();
+
+        // Add energy particles
+        if (Math.random() < 0.3) {
+            const particleSize = (2 + Math.random() * 2) * scale;
+            ctx.fillStyle = ship.design.engineColor;
+            ctx.beginPath();
+            ctx.arc(x2, y2, particleSize, 0, Math.PI * 2);
+            ctx.fill();
+        }
     }
+
+    // Energy core
+    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 20 * scale);
+    gradient.addColorStop(0, ship.design.engineColor);
+    gradient.addColorStop(1, 'transparent');
+    ctx.fillStyle = gradient;
+    ctx.globalAlpha = 0.5 + Math.sin(time * 3) * 0.2;
+    ctx.beginPath();
+    ctx.arc(0, 0, 20 * scale, 0, Math.PI * 2);
+    ctx.fill();
 
     ctx.restore();
 }
@@ -180,6 +202,19 @@ function drawSonicEffect(ctx, ship, scale) {
         ctx.beginPath();
         ctx.arc(0, 0, size, -Math.PI * 0.6, Math.PI * 0.6);
         ctx.stroke();
+
+        // Add distortion effect
+        ctx.beginPath();
+        for(let j = 0; j < 10; j++) {
+            const angle = (-Math.PI * 0.6) + (j / 10) * (Math.PI * 1.2);
+            const distortion = Math.sin(time * 10 + j) * 5 * scale;
+            const x = Math.cos(angle) * (size + distortion);
+            const y = Math.sin(angle) * (size + distortion);
+            
+            if(j === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
     }
 
     // Speed lines
@@ -196,7 +231,27 @@ function drawSonicEffect(ctx, ship, scale) {
             Math.sin(angle) * 40 * scale
         );
         ctx.stroke();
+
+        // Add speed particles
+        if (Math.random() < 0.2) {
+            const particleX = Math.cos(angle) * (30 + Math.random() * 10) * scale + waveOffset;
+            const particleY = Math.sin(angle) * (30 + Math.random() * 10) * scale;
+            ctx.fillStyle = ship.design.engineColor;
+            ctx.beginPath();
+            ctx.arc(particleX, particleY, scale, 0, Math.PI * 2);
+            ctx.fill();
+        }
     }
+
+    // Sonic core
+    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 15 * scale);
+    gradient.addColorStop(0, ship.design.engineColor);
+    gradient.addColorStop(1, 'transparent');
+    ctx.fillStyle = gradient;
+    ctx.globalAlpha = 0.7;
+    ctx.beginPath();
+    ctx.arc(0, 0, 15 * scale, 0, Math.PI * 2);
+    ctx.fill();
 
     ctx.restore();
 }
@@ -239,6 +294,19 @@ function drawFlameEffect(ctx, ship, scale) {
         );
         ctx.lineTo(10 * scale, 0);
         ctx.fill();
+
+        // Add flame particles
+        for(let j = 0; j < 2; j++) {
+            const particleX = (Math.random() - 0.5) * 40 * scale;
+            const particleY = (Math.random() * 20 + 10) * scale;
+            const particleSize = (2 + Math.random() * 2) * scale;
+            
+            ctx.fillStyle = Math.random() < 0.5 ? '#ff0000' : ship.design.engineColor;
+            ctx.globalAlpha = Math.random() * 0.5 + 0.2;
+            ctx.beginPath();
+            ctx.arc(particleX, particleY, particleSize, 0, Math.PI * 2);
+            ctx.fill();
+        }
     }
 
     // Dragon energy orbs
@@ -249,6 +317,18 @@ function drawFlameEffect(ctx, ship, scale) {
         const y = Math.sin(angle) * 25 * scale;
         const size = (3 + Math.sin(time * 5 + i) * 2) * scale;
 
+        // Orb glow
+        const gradient = ctx.createRadialGradient(x, y, 0, x, y, size * 2);
+        gradient.addColorStop(0, ship.design.engineColor);
+        gradient.addColorStop(1, 'transparent');
+        
+        ctx.fillStyle = gradient;
+        ctx.globalAlpha = 0.5;
+        ctx.beginPath();
+        ctx.arc(x, y, size * 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Orb core
         ctx.fillStyle = ship.design.engineColor;
         ctx.globalAlpha = 0.8;
         ctx.beginPath();
@@ -274,11 +354,30 @@ function drawShieldEffect(ctx, ship, scale) {
         const nextAngle = ((i + 1) / segments) * Math.PI * 2;
         const offset = Math.sin(time * 3 + i) * 5 * scale;
         
+        // Shield segments
         ctx.beginPath();
         ctx.strokeStyle = ship.design.engineColor;
         ctx.lineWidth = (3 + Math.sin(time * 2 + i) * 2) * scale;
         ctx.globalAlpha = 0.5 + Math.sin(time * 2 + i) * 0.3;
         
+        ctx.arc(0, 0, shieldRadius + offset, angle, nextAngle);
+        ctx.stroke();
+
+        // Shield segment glow
+        const gradient = ctx.createLinearGradient(
+            Math.cos(angle) * shieldRadius,
+            Math.sin(angle) * shieldRadius,
+            Math.cos(nextAngle) * shieldRadius,
+            Math.sin(nextAngle) * shieldRadius
+        );
+        gradient.addColorStop(0, 'transparent');
+        gradient.addColorStop(0.5, ship.design.engineColor);
+        gradient.addColorStop(1, 'transparent');
+
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 5 * scale;
+        ctx.globalAlpha = 0.3;
+        ctx.beginPath();
         ctx.arc(0, 0, shieldRadius + offset, angle, nextAngle);
         ctx.stroke();
     }
@@ -291,6 +390,18 @@ function drawShieldEffect(ctx, ship, scale) {
         const y = Math.sin(angle) * shieldRadius;
         const size = (4 + Math.sin(time * 3 + i) * 2) * scale;
 
+        // Node glow
+        const gradient = ctx.createRadialGradient(x, y, 0, x, y, size * 2);
+        gradient.addColorStop(0, ship.design.engineColor);
+        gradient.addColorStop(1, 'transparent');
+        
+        ctx.fillStyle = gradient;
+        ctx.globalAlpha = 0.5;
+        ctx.beginPath();
+        ctx.arc(x, y, size * 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Node core
         ctx.fillStyle = ship.design.engineColor;
         ctx.globalAlpha = 0.8;
         ctx.beginPath();
@@ -303,18 +414,156 @@ function drawShieldEffect(ctx, ship, scale) {
             const prevX = Math.cos(prevAngle) * shieldRadius;
             const prevY = Math.sin(prevAngle) * shieldRadius;
 
+            // Energy connection
+            const lineGradient = ctx.createLinearGradient(prevX, prevY, x, y);
+            lineGradient.addColorStop(0, 'transparent');
+            lineGradient.addColorStop(0.5, ship.design.engineColor);
+            lineGradient.addColorStop(1, 'transparent');
+
             ctx.beginPath();
-            ctx.strokeStyle = ship.design.engineColor;
+            ctx.strokeStyle = lineGradient;
             ctx.lineWidth = 2 * scale;
             ctx.globalAlpha = 0.3;
             ctx.moveTo(prevX, prevY);
             ctx.lineTo(x, y);
             ctx.stroke();
+
+            // Add energy particles along the connection
+            if (Math.random() < 0.3) {
+                const t = Math.random();
+                const particleX = prevX + (x - prevX) * t;
+                const particleY = prevY + (y - prevY) * t;
+                const particleSize = scale;
+
+                ctx.fillStyle = ship.design.engineColor;
+                ctx.globalAlpha = 0.6;
+                ctx.beginPath();
+                ctx.arc(particleX, particleY, particleSize, 0, Math.PI * 2);
+                ctx.fill();
+            }
         }
     }
 
     ctx.restore();
 }
 
+// Stealth effect for Phantom Ghost
+function drawStealthEffect(ctx, ship, scale) {
+    const time = Date.now() / 1000;
+    
+    ctx.save();
+    
+    // Stealth ripple effect
+    const rippleCount = 3;
+    for(let i = 0; i < rippleCount; i++) {
+        const offset = (time + i * 0.3) % 1;
+        const size = (30 + offset * 20) * scale;
+        
+        ctx.strokeStyle = ship.design.engineColor;
+        ctx.lineWidth = (2 - offset) * scale;
+        ctx.globalAlpha = 0.3 * (1 - offset);
+        
+        // Distorted circle
+        ctx.beginPath();
+        for(let angle = 0; angle < Math.PI * 2; angle += 0.1) {
+            const distortion = Math.sin(angle * 6 + time * 2) * 5 * scale;
+            const x = Math.cos(angle) * (size + distortion);
+            const y = Math.sin(angle) * (size + distortion);
+            
+            if(angle === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        ctx.closePath();
+        ctx.stroke();
+    }
+    
+    // Stealth particles
+    const particleCount = 12;
+    for(let i = 0; i < particleCount; i++) {
+        const angle = (i / particleCount) * Math.PI * 2 + time;
+        const distance = 25 * scale + Math.sin(time * 3 + i) * 5 * scale;
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+        
+        // Particle trail
+        const trailGradient = ctx.createLinearGradient(
+            x * 0.5, y * 0.5,
+            x, y
+        );
+        trailGradient.addColorStop(0, 'transparent');
+        trailGradient.addColorStop(0.5, ship.design.engineColor);
+        trailGradient.addColorStop(1, 'transparent');
+        
+        ctx.strokeStyle = trailGradient;
+        ctx.lineWidth = scale;
+        ctx.globalAlpha = 0.3;
+        ctx.beginPath();
+        ctx.moveTo(x * 0.5, y * 0.5);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        
+        // Particle glow
+        ctx.fillStyle = ship.design.engineColor;
+        ctx.globalAlpha = 0.4 + Math.sin(time * 5 + i) * 0.2;
+        ctx.beginPath();
+        ctx.arc(x, y, scale, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    // Cloaking field
+    const cloakOpacity = (Math.sin(time * 2) + 1) * 0.15;
+    const cloakGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 40 * scale);
+    cloakGradient.addColorStop(0, 'transparent');
+    cloakGradient.addColorStop(0.5, ship.design.engineColor);
+    cloakGradient.addColorStop(1, 'transparent');
+    
+    ctx.fillStyle = cloakGradient;
+    ctx.globalAlpha = cloakOpacity;
+    ctx.beginPath();
+    ctx.arc(0, 0, 40 * scale, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Phase shift effect
+    const phaseCount = 2;
+    for(let i = 0; i < phaseCount; i++) {
+        const phaseOffset = Math.sin(time * 3 + i * Math.PI) * 5 * scale;
+        
+        ctx.strokeStyle = ship.design.engineColor;
+        ctx.lineWidth = 0.5 * scale;
+        ctx.globalAlpha = 0.2;
+        
+        // Phase lines
+        for(let j = 0; j < 3; j++) {
+            const lineOffset = j * 10 * scale;
+            ctx.beginPath();
+            ctx.moveTo(-20 * scale + phaseOffset, -lineOffset);
+            ctx.lineTo(20 * scale + phaseOffset, -lineOffset);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(-20 * scale - phaseOffset, lineOffset);
+            ctx.lineTo(20 * scale - phaseOffset, lineOffset);
+            ctx.stroke();
+        }
+    }
+    
+    ctx.restore();
+}
+
 // Export functions
+window.createExplosion = createExplosion;
+window.updateParticles = updateParticles;
+window.drawParticle = drawParticle;
+window.updateStars = updateStars;
+window.drawStars = drawStars;
+window.createHitEffect = createHitEffect;
+window.drawHealthBar = drawHealthBar;
 window.drawSpecialEffect = drawSpecialEffect;
+window.drawPulseEffect = drawPulseEffect;
+window.drawSonicEffect = drawSonicEffect;
+window.drawFlameEffect = drawFlameEffect;
+window.drawShieldEffect = drawShieldEffect;
+window.drawStealthEffect = drawStealthEffect;

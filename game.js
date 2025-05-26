@@ -118,31 +118,41 @@ function init() {
     if (savedShip) {
         try {
             const shipData = JSON.parse(savedShip);
-            // Find the matching ship in SHIPS array
-            const matchingShip = window.SHIPS.find(ship => ship.id === shipData.id);
-            if (matchingShip) {
-                console.log('Loading ship:', matchingShip);
-                
-                // Apply ship properties
-                player.speed = matchingShip.speed;
-                player.damage = matchingShip.damage;
-                player.maxShieldTime = matchingShip.shield * 100;
-                player.design = { ...matchingShip.design };
-            } else {
-                console.warn('Saved ship not found in SHIPS array, using default');
-                useDefaultShip();
-            }
-        } catch (e) {
-            console.error('Error loading saved ship:', e);
-            useDefaultShip();
+            console.log('Loading ship:', shipData); // Debug log
+            
+            // Apply ship properties
+            player.speed = shipData.speed;
+            player.damage = shipData.damage;
+            player.maxShieldTime = shipData.shield * 100;
+            player.shieldTime = 0;
+            
+            // Ensure design is properly copied
+            player.design = {
+                mainColor: shipData.design.mainColor,
+                accentColor: shipData.design.accentColor,
+                engineColor: shipData.design.engineColor,
+                type: shipData.design.type,
+                special: shipData.design.special
+            };
+            
+            console.log('Applied ship design:', player.design); // Debug log
+        } catch (error) {
+            console.error('Error loading ship:', error);
+            // Fallback to default ship
+            player.speed = 3;
+            player.damage = 3;
+            player.maxShieldTime = 300;
+            player.design = SHIPS[0].design;
         }
     } else {
-        console.warn('No saved ship found, using default');
-        useDefaultShip();
+        // Set default ship if none selected
+        player.speed = 3;
+        player.damage = 3;
+        player.maxShieldTime = 300;
+        player.design = SHIPS[0].design;
     }
     
     player.health = 100;
-    player.shieldTime = 0;
     resetAllSkills();
     startWave(wave);
     
@@ -150,20 +160,16 @@ function init() {
     updateWaveDisplay();
 }
 
-// Helper function to use default ship
-function useDefaultShip() {
-    const defaultShip = window.SHIPS[0];
-    player.speed = defaultShip.speed;
-    player.damage = defaultShip.damage;
-    player.maxShieldTime = defaultShip.shield * 100;
-    player.design = { ...defaultShip.design };
-}
-
 // Start game
 function startGame() {
     gameState = 'playing';
     initGameElements();
     init();
+    
+    // Initialize mobile controls if needed
+    if (window.mobileControlsHandler && window.mobileControlsHandler.isMobileDevice()) {
+        window.mobileControlsHandler.init();
+    }
 }
 
 // Update wave display

@@ -300,39 +300,32 @@ canvas {
 
 /* Mobile Controls */
 .mobile-controls {
-    display: none;
+    display: none; /* Hidden by default */
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     padding: 20px;
     z-index: 1000;
-    height: 150px;
-    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.8));
+    background: rgba(0, 0, 0, 0.7);
     touch-action: none;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 
-.mobile-controls .movement-pad {
-    position: relative;
-    left: 0;
-    bottom: 0;
+.movement-pad {
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
     width: 150px;
     height: 150px;
-    touch-action: none;
 }
 
-.mobile-controls .action-buttons {
-    position: relative;
-    right: 0;
-    bottom: 0;
+.action-buttons {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
-    width: auto;
-    touch-action: none;
 }
 
 .mobile-button {
@@ -342,16 +335,17 @@ canvas {
     border: 2px solid rgba(255, 255, 255, 0.4);
     border-radius: 50%;
     color: white;
+    font-size: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
     touch-action: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
 }
 
-.mobile-button:active {
+.mobile-button:active,
+.mobile-button.active {
     background: rgba(255, 255, 255, 0.4);
     transform: scale(0.95);
 }
@@ -364,7 +358,8 @@ canvas {
     justify-self: center;
 }
 
-.mobile-button.shoot:active {
+.mobile-button.shoot:active,
+.mobile-button.shoot.active {
     background: rgba(255, 0, 0, 0.5);
 }
 
@@ -372,7 +367,6 @@ canvas {
     position: relative;
     width: 150px;
     height: 150px;
-    touch-action: none;
 }
 
 .d-pad-button {
@@ -381,16 +375,17 @@ canvas {
     height: 50px;
     background: rgba(255, 255, 255, 0.2);
     border: 2px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    font-size: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 24px;
     touch-action: none;
-    -webkit-tap-highlight-color: transparent;
+    user-select: none;
 }
 
-.d-pad-button:active {
+.d-pad-button:active,
+.d-pad-button.active {
     background: rgba(255, 255, 255, 0.4);
     transform: scale(0.95);
 }
@@ -400,105 +395,61 @@ canvas {
 .d-pad-down { bottom: 0; left: 50px; transform: translateX(-50%); border-radius: 0 0 10px 10px; }
 .d-pad-left { left: 0; top: 50px; transform: translateY(-50%); border-radius: 10px 0 0 10px; }
 
-/* Hide mobile controls on desktop */
-@media (min-width: 769px) {
-    .mobile-controls {
-        display: none !important;
-    }
-}
-
-/* Show mobile controls only on mobile devices */
+/* Responsive Design */
 @media (max-width: 768px) {
-    .mobile-controls {
-        display: flex !important;
+    canvas {
+        width: 100% !important;
+        height: calc(100vh - 200px) !important; /* Adjust for mobile controls */
     }
 
-    .controls {
-        display: none !important;
+    .mobile-controls {
+        height: 180px;
     }
 
     .hud {
-        font-size: 14px;
-        top: 10px;
-        left: 10px;
+        transform: scale(0.8);
+        transform-origin: top left;
     }
 
     .skills-hud {
-        top: 10px;
-        right: 10px;
         transform: scale(0.8);
         transform-origin: top right;
     }
 
-    canvas {
-        height: calc(100vh - 150px) !important;
-        margin-bottom: 150px;
-    }
-
-    .start-menu {
-        width: 90%;
-        max-width: 400px;
-        padding: 20px;
-        font-size: 14px;
-    }
-
-    .game-title {
-        font-size: 32px;
-        margin-bottom: 20px;
-    }
-
-    .story-text {
-        font-size: 14px;
-        padding: 0 10px;
-    }
-
-    .menu-buttons {
-        width: 100%;
-    }
-
-    .play-button,
-    .customize-button {
-        width: 100%;
-        max-width: 280px;
-        font-size: 18px;
-        padding: 12px 30px;
-    }
-
-    .instruction-text {
-        font-size: 12px;
-        padding: 15px;
-    }
-
-    .instruction-text h3 {
-        font-size: 16px;
+    .controls {
+        display: none !important; /* Hide keyboard controls on mobile */
     }
 }
 
-/* Landscape mode adjustments */
+/* Landscape mode */
 @media (max-width: 768px) and (orientation: landscape) {
+    canvas {
+        height: calc(100vh - 150px) !important;
+    }
+
     .mobile-controls {
-        height: 120px;
+        height: 130px;
         padding: 10px;
     }
 
-    .mobile-controls .movement-pad,
-    .d-pad {
-        transform: scale(0.8);
-        transform-origin: left center;
+    .movement-pad {
+        transform: scale(0.7);
+        transform-origin: left bottom;
+        left: 10px;
+        bottom: 10px;
     }
 
-    .mobile-controls .action-buttons {
-        transform: scale(0.8);
-        transform-origin: right center;
+    .action-buttons {
+        transform: scale(0.7);
+        transform-origin: right bottom;
+        right: 10px;
+        bottom: 10px;
     }
+}
 
-    canvas {
-        height: calc(100vh - 120px) !important;
-        margin-bottom: 120px;
-    }
-
-    .start-menu {
-        max-height: 90vh;
-        overflow-y: auto;
+/* Hide mobile controls on desktop */
+@media (min-width: 769px) {
+    .mobile-controls {
+        display: none !important;
     }
 }

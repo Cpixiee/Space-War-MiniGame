@@ -28,7 +28,8 @@
                 </div>
                 
                 <div class="ship-info">
-                    <h2 id="shipName" class="ship-name">Aurora Fighter</h2>
+                    <h2 id="shipName" class="ship-name">Pesawat Default</h2>
+                    
                     <div class="ship-stats">
                         <div class="stat-row">
                             <span class="stat-label">Kecepatan</span>
@@ -37,6 +38,7 @@
                             </div>
                             <span id="speedValue" class="stat-value">3</span>
                         </div>
+                        
                         <div class="stat-row">
                             <span class="stat-label">Damage</span>
                             <div class="stat-bar">
@@ -44,6 +46,7 @@
                             </div>
                             <span id="damageValue" class="stat-value">3</span>
                         </div>
+                        
                         <div class="stat-row">
                             <span class="stat-label">Shield</span>
                             <div class="stat-bar">
@@ -52,10 +55,10 @@
                             <span id="shieldValue" class="stat-value">3</span>
                         </div>
                     </div>
-                    <p id="shipDescription" class="ship-description">
-                        Pesawat seimbang dengan kemampuan adaptif di segala situasi.
-                        Dilengkapi dengan teknologi shield generasi terbaru.
-                    </p>
+
+                    <div class="ship-description" id="shipDescription">
+                        Pesawat dengan kemampuan seimbang, cocok untuk semua gaya bermain.
+                    </div>
                 </div>
             </div>
             
@@ -64,8 +67,8 @@
             </button>
         </div>
 
-        <div id="shipThumbnails" class="ship-thumbnails">
-            <!-- Thumbnails will be generated here -->
+        <div class="ship-thumbnails" id="shipThumbnails">
+            <!-- Thumbnails will be added by JavaScript -->
         </div>
 
         <div class="button-container">
@@ -74,110 +77,6 @@
         </div>
     </div>
 
-    <script src="ships.js"></script>
-    <script>
-        // Initialize ship selection
-        document.addEventListener('DOMContentLoaded', () => {
-            const shipThumbnails = document.getElementById('shipThumbnails');
-            
-            // Create thumbnails for each ship
-            SHIPS.forEach((ship, index) => {
-                const thumbnail = document.createElement('div');
-                thumbnail.className = `ship-thumbnail ${index === 0 ? 'active' : ''}`;
-                
-                const canvas = document.createElement('canvas');
-                canvas.width = 80;
-                canvas.height = 60;
-                const ctx = canvas.getContext('2d');
-                
-                // Draw ship thumbnail
-                ctx.save();
-                ctx.translate(40, 30);
-                drawShipBase(ctx, ship.design, 0.8);
-                ctx.restore();
-                
-                thumbnail.appendChild(canvas);
-                thumbnail.addEventListener('click', () => {
-                    // Update selected ship
-                    currentShipIndex = index;
-                    selectedShip = SHIPS[index];
-                    updateShipDisplay();
-                    saveSelectedShip();
-                    
-                    // Update thumbnail selection
-                    document.querySelectorAll('.ship-thumbnail').forEach(thumb => {
-                        thumb.classList.remove('active');
-                    });
-                    thumbnail.classList.add('active');
-                });
-                
-                shipThumbnails.appendChild(thumbnail);
-            });
-
-            // Initialize display
-            updateShipDisplay();
-
-            // Add event listeners for navigation buttons
-            document.getElementById('prevShip').addEventListener('click', () => {
-                currentShipIndex = (currentShipIndex - 1 + SHIPS.length) % SHIPS.length;
-                selectedShip = SHIPS[currentShipIndex];
-                updateShipDisplay();
-                saveSelectedShip();
-                updateThumbnailSelection();
-            });
-
-            document.getElementById('nextShip').addEventListener('click', () => {
-                currentShipIndex = (currentShipIndex + 1) % SHIPS.length;
-                selectedShip = SHIPS[currentShipIndex];
-                updateShipDisplay();
-                saveSelectedShip();
-                updateThumbnailSelection();
-            });
-
-            // Add event listeners for action buttons
-            document.getElementById('selectButton').addEventListener('click', () => {
-                saveSelectedShip();
-                window.location.href = 'monster.html';
-            });
-
-            document.getElementById('backButton').addEventListener('click', () => {
-                window.location.href = 'monster.html';
-            });
-        });
-
-        function updateThumbnailSelection() {
-            document.querySelectorAll('.ship-thumbnail').forEach((thumb, index) => {
-                thumb.classList.toggle('active', index === currentShipIndex);
-            });
-        }
-
-        function updateShipDisplay() {
-            const ship = SHIPS[currentShipIndex];
-            
-            // Update ship name and description
-            document.getElementById('shipName').textContent = ship.name;
-            document.getElementById('shipDescription').textContent = ship.description;
-            
-            // Update stats
-            document.getElementById('speedValue').textContent = ship.speed;
-            document.getElementById('damageValue').textContent = ship.damage;
-            document.getElementById('shieldValue').textContent = ship.shield;
-            
-            document.getElementById('speedBar').style.width = `${ship.speed * 20}%`;
-            document.getElementById('damageBar').style.width = `${ship.damage * 20}%`;
-            document.getElementById('shieldBar').style.width = `${ship.shield * 20}%`;
-            
-            // Update preview
-            const preview = document.getElementById('shipPreview');
-            const ctx = preview.getContext('2d');
-            preview.width = 400;
-            preview.height = 300;
-            
-            ctx.save();
-            ctx.translate(preview.width/2, preview.height/2);
-            drawShipBase(ctx, ship.design, 2);
-            ctx.restore();
-        }
-    </script>
+    <script src="shipSelection.js"></script>
 </body>
 </html> 

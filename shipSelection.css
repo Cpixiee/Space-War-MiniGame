@@ -10,9 +10,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    position: fixed;
-    width: 100%;
-    height: 100%;
 }
 
 /* Stars animation */
@@ -64,20 +61,7 @@ body {
     padding: 40px;
     box-shadow: 0 0 50px rgba(0, 150, 255, 0.2);
     border: 2px solid rgba(0, 150, 255, 0.3);
-    overflow-y: auto;
-    max-height: 90vh;
-    animation: containerAppear 0.5s ease-out;
-}
-
-@keyframes containerAppear {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    box-sizing: border-box;
 }
 
 /* Title */
@@ -88,13 +72,6 @@ body {
     color: #00bcd4;
     text-shadow: 0 0 20px rgba(0, 188, 212, 0.5);
     letter-spacing: 4px;
-    animation: titleGlow 2s ease-in-out infinite;
-}
-
-@keyframes titleGlow {
-    0% { text-shadow: 0 0 20px rgba(0, 188, 212, 0.5); }
-    50% { text-shadow: 0 0 40px rgba(0, 188, 212, 0.8); }
-    100% { text-shadow: 0 0 20px rgba(0, 188, 212, 0.5); }
 }
 
 /* Ship showcase */
@@ -119,31 +96,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.nav-button:before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, rgba(0, 188, 212, 0.2) 0%, transparent 70%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.nav-button:hover:before {
-    opacity: 1;
+    z-index: 1;
 }
 
 .nav-button:hover {
+    background: #00bcd4;
+    color: #fff;
     transform: scale(1.1);
     box-shadow: 0 0 20px rgba(0, 188, 212, 0.5);
-}
-
-.nav-button:active {
-    transform: scale(0.95);
 }
 
 .arrow {
@@ -156,13 +116,15 @@ body {
     margin: 0 40px;
     display: flex;
     gap: 40px;
+    min-width: 300px;
     flex-wrap: wrap;
     justify-content: center;
 }
 
 .ship-model {
     position: relative;
-    width: 400px;
+    width: 100%;
+    max-width: 400px;
     height: 300px;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 20px;
@@ -170,8 +132,6 @@ body {
     align-items: center;
     justify-content: center;
     border: 2px solid rgba(0, 150, 255, 0.3);
-    margin: 0 auto;
-    overflow: hidden;
 }
 
 .ship-glow {
@@ -195,6 +155,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    min-width: 280px;
 }
 
 .ship-name {
@@ -202,7 +163,6 @@ body {
     margin: 0;
     color: #00bcd4;
     text-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
-    transition: opacity 0.3s ease;
 }
 
 /* Stats */
@@ -216,22 +176,6 @@ body {
     display: flex;
     align-items: center;
     gap: 15px;
-    animation: statAppear 0.5s ease-out backwards;
-}
-
-.stat-row:nth-child(1) { animation-delay: 0.1s; }
-.stat-row:nth-child(2) { animation-delay: 0.2s; }
-.stat-row:nth-child(3) { animation-delay: 0.3s; }
-
-@keyframes statAppear {
-    from {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
 }
 
 .stat-label {
@@ -245,33 +189,18 @@ body {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 5px;
     overflow: hidden;
-    position: relative;
 }
 
 .stat-fill {
     height: 100%;
     background: linear-gradient(90deg, #00bcd4, #00e5ff);
-    width: 0;
-    transition: width 0.5s ease-out;
-    position: relative;
-    overflow: hidden;
+    transition: width 0.3s ease;
 }
 
-.stat-fill:after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
+.stat-value {
     width: 30px;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.3);
-    transform: skewX(-20deg);
-    animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-    from { transform: translateX(-100%) skewX(-20deg); }
-    to { transform: translateX(400%) skewX(-20deg); }
+    text-align: right;
+    color: #7fdbff;
 }
 
 /* Ship description */
@@ -288,6 +217,7 @@ body {
     justify-content: center;
     gap: 20px;
     margin-bottom: 30px;
+    flex-wrap: wrap;
 }
 
 .ship-thumbnail {
@@ -298,24 +228,6 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     opacity: 0.5;
-    position: relative;
-    overflow: hidden;
-}
-
-.ship-thumbnail:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, rgba(0, 188, 212, 0.2) 0%, transparent 70%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.ship-thumbnail:hover:before {
-    opacity: 1;
 }
 
 .ship-thumbnail.active {
@@ -330,6 +242,8 @@ body {
     display: flex;
     justify-content: center;
     gap: 20px;
+    margin-top: 30px;
+    flex-wrap: wrap;
 }
 
 .select-button, .back-button {
@@ -338,10 +252,8 @@ body {
     border-radius: 30px;
     cursor: pointer;
     transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    position: relative;
-    overflow: hidden;
+    min-width: 200px;
+    text-align: center;
 }
 
 .select-button {
@@ -356,32 +268,27 @@ body {
     color: #00bcd4;
 }
 
-.select-button:before, .back-button:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.2),
-        transparent
-    );
-    transition: 0.5s;
-}
-
-.select-button:hover:before, .back-button:hover:before {
-    left: 100%;
-}
-
 .select-button:hover, .back-button:hover {
     transform: scale(1.05);
     box-shadow: 0 0 20px rgba(0, 188, 212, 0.5);
 }
 
-/* Responsive Design */
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ship-selection-container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Ship hover effect */
+.ship-model:hover .ship-glow {
+    animation: glowPulse 1s ease-in-out infinite;
+}
+
+/* Mobile Responsive Design */
 @media (max-width: 768px) {
     .ship-selection-container {
         padding: 20px;
@@ -390,55 +297,33 @@ body {
     }
 
     .title {
-        font-size: 28px;
+        font-size: 32px;
         margin-bottom: 20px;
-    }
-
-    .ship-showcase {
-        flex-direction: column;
-        gap: 20px;
     }
 
     .ship-display {
         margin: 0;
-        flex-direction: column;
         gap: 20px;
     }
 
     .ship-model {
-        width: 100%;
         height: 200px;
     }
 
     .ship-info {
-        width: 100%;
-    }
-
-    .ship-name {
-        font-size: 24px;
         text-align: center;
-    }
-
-    .ship-stats {
-        padding: 0 10px;
     }
 
     .stat-row {
-        justify-content: space-between;
+        justify-content: center;
     }
 
-    .stat-label {
-        width: auto;
-    }
-
-    .ship-description {
-        font-size: 14px;
-        padding: 0 10px;
-        text-align: center;
+    .nav-button {
+        width: 40px;
+        height: 40px;
     }
 
     .ship-thumbnails {
-        flex-wrap: wrap;
         gap: 10px;
     }
 
@@ -447,51 +332,38 @@ body {
         height: 45px;
     }
 
-    .button-container {
-        flex-direction: column;
-        gap: 10px;
-    }
-
     .select-button, .back-button {
-        width: 100%;
-        padding: 12px 20px;
+        padding: 12px 30px;
         font-size: 16px;
-    }
-
-    .nav-button {
-        width: 40px;
-        height: 40px;
+        min-width: 160px;
     }
 }
 
-/* Landscape mode adjustments */
+/* Landscape mode */
 @media (max-width: 768px) and (orientation: landscape) {
     .ship-selection-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
         padding: 15px;
+        margin: 5px;
     }
 
     .title {
-        grid-column: span 2;
+        font-size: 24px;
+        margin-bottom: 15px;
     }
 
     .ship-model {
         height: 150px;
     }
 
-    .ship-display {
-        grid-column: span 2;
-        flex-direction: row;
-    }
-
-    .button-container {
-        grid-column: span 2;
-        flex-direction: row;
+    .ship-info {
+        font-size: 14px;
     }
 
     .ship-thumbnails {
-        grid-column: span 2;
+        margin-bottom: 15px;
+    }
+
+    .button-container {
+        margin-top: 15px;
     }
 } 
